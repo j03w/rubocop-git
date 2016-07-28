@@ -71,10 +71,13 @@ class StyleGuide
     @target ||= begin
       target = config['AllCops'] && config['AllCops']['TargetRubyVersion']
 
-      if !target || !RuboCop::Config::KNOWN_RUBIES.include?(target)
-        fail ValidationError, "Unknown Ruby version #{target.inspect} found " \
+      # return current running ruby version when TargetRubyVersion is not specified
+      return RUBY_VERSION.gsub(/\.\d$/, '').to_f unless target
+
+      if !RuboCop::Config::KNOWN_RUBIES.include?(target)
+        fail RuboCop::ValidationError, "Unknown Ruby version #{target.inspect} found " \
           'in `TargetRubyVersion` parameter (in ' \
-          "#{loaded_path}).\nKnown versions: " \
+          "#{config.loaded_path}).\nKnown versions: " \
           "#{RuboCop::Config::KNOWN_RUBIES.join(', ')}"
       end
 
